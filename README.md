@@ -1,7 +1,7 @@
 
 # 🏴‍☠️ Cybersecurity-playground
 
-Welcome to the **Cybersecurity-playground** — my personal ship sailing through the vast seas of cybersecurity. Just like a crew searching for the legendary One Piece, I explore vulnerabilities, crack puzzles, and build skills to master the art of hacking and defense.
+Welcome to Cybersecurity-playground — a comprehensive repository dedicated to exploring the vast domain of cybersecurity. This project serves as a structured journey through various security concepts, techniques, and practical challenges aimed at developing expertise in ethical hacking, vulnerability analysis, and defensive strategies.
 
 ---
 
