@@ -18,3 +18,16 @@
 5. In the **ANALYZE** tab, selected **Keyword Search**, searched for `.txt`, and found several text files.
 6. Each `.txt` file contained a part of the flag.
 7. Combined all pieces to form the complete flag.
+
+#### 🏁 Flag:
+
+```
+picoCTF{1_533_n4m35_80d24b30}
+```
+
+#### Key Notes:
+
+* `.img` files are disk images — treat them like virtual hard drives.
+* **Autopsy** is a powerful forensic tool to analyze disk images, recover files, search keywords, etc.
+* Keyword search helps you quickly locate interesting file types (like `.txt`, `.jpg`, etc.).
+* Sometimes flags are split into multiple files — piece them together carefully.
