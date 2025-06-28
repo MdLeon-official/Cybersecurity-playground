@@ -173,7 +173,7 @@ hex -d 0
 ### 🏁 Flag:
 
 ```
-picoCTF{f1len@m3_m@n1pul@t10n_f0r_0b2cur17y_3c79c5ba}
+picoCTF{f1len@m3_m@n1pul@t10n_f0r_*********_3c79c5ba}
 ```
 
 ---
