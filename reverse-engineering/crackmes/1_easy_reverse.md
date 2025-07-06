@@ -1,4 +1,4 @@
-## [cbm-hackers's easy\_reverse](https://crackmes.one/crackme/5b8a37a433c5d45fc286ad83)
+## cbm-hackers's easy_reverse -> [Click](https://crackmes.one/crackme/5b8a37a433c5d45fc286ad83)
 
 
 #### Steps to Solve:
