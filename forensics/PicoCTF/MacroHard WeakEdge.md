@@ -1,16 +1,6 @@
 #  MacroHard WeakEdge - [Click](https://play.picoctf.org/practice/challenge/130?category=4&page=4&search=)
 
 
-
-`.pptm` files (macro-enabled PowerPoint files) are actually just **ZIP archives** under the hood — part of the [Open XML format](https://en.wikipedia.org/wiki/Office_Open_XML), used by Microsoft Office.
-That means you can treat them like zip files and extract their internal structure using `unzip`. This lets you explore:
-
-* **Macro code** (inside `vbaProject.bin`)
-* **Slide data** and **hidden notes** (inside folders like `slides/`, `slideMasters/`)
-* Other embedded or hidden content that may not appear in the normal PowerPoint UI
-Since nothing was visible when the file was opened normally, it hinted that the flag might be hidden **in the structure**, not the visible content.
-
-
 ### 🧪 Steps to Solve:
 
 1. **Download the file**:
@@ -19,7 +9,7 @@ Since nothing was visible when the file was opened normally, it hinted that the 
    wget https://mercury.picoctf.net/static/2e739f9e0dc9f4c1556ea6b033c3ec8e/Forensics%20is%20fun.pptm
    ```
 
-*Then I opened the file but I couldn't found anything. So I searched online and found that `.pptm` files (macro-enabled PowerPoint files) are actually just **ZIP archives** under the hood — part of the [Open XML format](https://en.wikipedia.org/wiki/Office_Open_XML), used by Microsoft Office.
+Then I opened the file but I couldn't found anything. So I searched online and found that `.pptm` files (macro-enabled PowerPoint files) are actually just **ZIP archives** under the hood — part of the [Open XML format](https://en.wikipedia.org/wiki/Office_Open_XML), used by Microsoft Office.
 That means you can treat them like zip files and extract their internal structure using `unzip`. This lets you explore:
 
 * **Macro code** (inside `vbaProject.bin`)
