@@ -62,7 +62,7 @@ Since nothing was visible when the file was opened normally, it hinted that the 
 ### Flag:
 
 ```
-picoCTF{D1d_u_kn0w_ppts_r_z1p5}
+picoCTF{D1d_u_****_ppts_r_z1p5}
 ```
 
 
