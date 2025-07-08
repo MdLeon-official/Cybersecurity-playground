@@ -1,13 +1,10 @@
 # Lab: SQL Injection UNION attack – Finding a column containing text - [Link](https://portswigger.net/web-security/sql-injection/union-attacks/lab-find-column-containing-text)
 
----
 
 ### Goal:
 
 Make the database retrieve the string: `'ZUA5jF'`
 You must find **which column** can hold text (i.e., string data type).
-
----
 
 ## Step-by-step:
 
