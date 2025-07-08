@@ -8,6 +8,8 @@ You must find **which column** can hold text (i.e., string data type).
 
 ## Step-by-step:
 
+### Access the lab , then open burp suite then capture request.
+
 ### 1. Determine number of columns
 
 Test with `ORDER BY` until it breaks:
