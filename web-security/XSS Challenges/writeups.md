@@ -30,6 +30,8 @@ Then use this payload in that input field:
 ```
 
 ## Stage #6
-Use this payload: `" onerror=alert(document.domain)`
+Use this payload: `" onclick=alert(document.domain)`
 Click the search button. Then click the input field again. SOLVED!
 
+## Stage #7
+Same as **Stage #6**. Use this payload: `" onclick=alert(document.domain)`
