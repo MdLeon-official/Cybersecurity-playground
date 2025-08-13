@@ -35,3 +35,7 @@ Click the search button. Then click the input field again. SOLVED!
 
 ## Stage #7
 Same as **Stage #6**. Use this payload: `" onclick=alert(document.domain)`
+
+## Stage #8
+Use this payload: `javascript:alert(document.domain)'. Then its gonna make an url.
+Click that url and the lab is solved.
