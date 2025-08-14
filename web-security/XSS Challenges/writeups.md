@@ -39,3 +39,8 @@ Same as **Stage #6**. Use this payload: `" onclick=alert(document.domain)`
 ## Stage #8
 Use this payload: `javascript:alert(document.domain)'. Then its gonna make an url.
 Click that url and the lab is solved.
+
+
+## Stage #9
+Open Console. Then use this: `alert(document.domain)` and execute.
+
