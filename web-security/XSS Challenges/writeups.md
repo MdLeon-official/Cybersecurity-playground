@@ -44,3 +44,9 @@ Click that url and the lab is solved.
 ## Stage #9
 Open Console. Then use this: `alert(document.domain)` and execute.
 
+
+## Stage #10
+Since the word `domain` is removed use
+```
+"><script>alert(document['do'+'main'])</script>
+```
