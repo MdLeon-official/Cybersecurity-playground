@@ -6,7 +6,7 @@ I started by decompiling the APK using `apktool`:
 apktool d DroidFlag.apk
 ```
 
-Then, I checked `MainActivity.smali` ((DroidFlag/smali/org/knightsquad/droidflag) and saw that it creates a `StringHandler` instance. After decompiling `StringHandler.smali` to Java, I found that it has four methods:
+Then, I checked `MainActivity.smali` ((DroidFlag/smali/org/knightsquad/droidflag) and saw that it creates a `StringHandler` instance. After decompiling `StringHandler.smali` to Java (Used an online decompiler), I found that it has four methods:
 
 * `getS1()` returns the string `s5` from resources.
 * `getS2()`, `getS3()`, and `getS4()` return strings `s6`, `s7`, `s8` from resources **in reversed order**.
