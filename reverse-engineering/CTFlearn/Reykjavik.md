@@ -3,7 +3,7 @@
 ### **Way 1:**
 Use `ltrace ./Reykjavik "CTF"` and You will get the flag.
 
-## **Way 2: (with gdb):**
+### **Way 2: (with gdb):**
 ```gdb
 disassemble main
 ```
