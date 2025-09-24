@@ -11,3 +11,10 @@ Then used `password <password>`
 ## Level 2 - Level 3
 After using `resources`, I saw there's a text file called readable.txt. So I used `open readable.txt` and saw that the whole content inside that txt file is reversed, but the password isn't. 
 Then used `password <password>`
+
+
+## Level 3 - Level 4
+There's a mp3 file. So when you open that file it only says "testing testing testing....."
+So it might be the password.
+
+
