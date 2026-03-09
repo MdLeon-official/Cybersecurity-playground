@@ -18,9 +18,9 @@ PORT      STATE SERVICE
 Nmap done: 1 IP address (1 host up) scanned in 304.72 seconds
 ```
 
-Q1: What is the highest port number being open less than 10,000? - 8080
-Q2: There is an open port outside the common 1000 ports; it is above 10,000. What is it? - 100021
-Q3: How many TCP ports are open? - 6
+Q1: What is the highest port number being open less than 10,000? - 8080 <br>
+Q2: There is an open port outside the common 1000 ports; it is above 10,000. What is it? - 100021 <br>
+Q3: How many TCP ports are open? - 6 <br>
 
 ### Q4: use curl command to get HTTP response header + body
 ```
