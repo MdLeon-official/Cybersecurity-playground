@@ -73,28 +73,41 @@ By continuing this pattern with a password wordlist, I was eventually able to fi
 <br>
 
 ## 5. Username enumeration via account lock
-The main concept for this challenge was *Account locking stops many password attempts on one account (if the username exists), but attackers try a few common passwords on many accounts to avoid the lock.*
-So to solve this challenge, first I tried to log in using random credentials and captured that request in Burp. Then I sent that request to **Burp Intruder** and set the payload type to **Cluster Bomb**.
-For the username payloads, I used all the usernames the challenge gave, and for the password payloads I used around 10 random passwords, then started the attack.
+The main concept for this challenge was that account locking stops many password attempts on one account, but attackers can try a few common passwords across many accounts to avoid the lock.
+
+To solve this challenge, I first tried logging in with random credentials and captured the request in Burp. Then I sent the request to Burp Intruder and set the attack type to Cluster Bomb.
+
+For the payloads, I used the list of usernames provided in the lab and around 10 common passwords. Then I started the attack.
+
 I noticed that for one username the response was different and showed the error:
+
 `You have made too many incorrect login attempts. Please try again in 1 minute(s).`
+
 This indicated that the username exists.
-So I took this username, changed the attack type to **Sniper**, used all the given passwords as the payload list, and started the attack. For the correct credential, the response returned **without the error**, which indicated a successful login.
+
+Then I took this username, changed the attack type to Sniper, and used the full password list as the payload. After starting the attack, one response returned without the error message, which indicated the correct credentials.
+
 
 
 ## 6. Broken brute-force protection, multiple credentials per request
-User rate limiting blocks too many login requests from the same IP, but attackers can bypass it by changing IP addresses or guessing multiple passwords in a single request.
+User rate limiting blocks too many login requests from the same IP, but attackers can bypass it by changing IP addresses or by trying multiple passwords in a single request.
 
-	After capturing the login request, it had something like this:
-	```
-	{"username":"carlos","password":"ff"}
-	```
-	Instead of sending a single password value, I modified the request so that the password parameter contains an array of passwords. It looked something like this:
-	```
-	{"username":"carlos","password":["123456","password","qwerty", ... ]}
-	```
-	By doing this, the server processes multiple passwords in one HTTP request. Since the rate limit counts the number of requests and not the number of passwords checked, this allows many password guesses to be made while sending only a single request.
-	After sending the modified request, one of the passwords in the array matched the correct password, which resulted in a successful login.
+After capturing the login request, it looked something like this:
+
+```
+{"username":"carlos","password":"ff"}
+```
+
+Instead of sending a single password value, I modified the request so that the password parameter contains an array of passwords. It looked like this:
+
+```
+{"username":"carlos","password":["123456","password","qwerty", ... ]}
+```
+
+By doing this, the server checks multiple passwords within a single HTTP request. Since the rate limit only counts the number of requests and not the number of passwords tested, this allows many password guesses to be made while sending only one request.
+
+After sending the modified request, one of the passwords in the array matched the correct password, which resulted in a successful login.
+
 
 <br>
 
