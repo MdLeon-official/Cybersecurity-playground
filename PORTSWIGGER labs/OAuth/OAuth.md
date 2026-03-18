@@ -20,6 +20,7 @@ The server verifies this and returns an access token. Since this exchange happen
 Here are clean, exam-friendly notes for each OAuth step 👇
 
 **Step 1: Authorization Request**
+
 Client app sends request to OAuth server (`/authorization` or `/auth`), Goal: Ask permission to access user data, Uses browser (front-channel)
 ```
 GET /authorization?client_id=12345&redirect_uri=https://client-app.com/callback&response_type=code&scope=openid%20profile&state=ae13d489bd00e3c24 HTTP/1.1
@@ -28,10 +29,12 @@ Host: oauth-authorization-server.com
 `client_id` → Unique ID of client app. `redirect_uri` → Where user is sent after auth (callback URI), `response_type=code` → Indicates Authorization Code flow, `scope` → What data is requested (e.g., profile, email), `state` → Random value to prevent CSRF attacks
 
 **Step 2: User Login & Consent**
+
 User is redirected to OAuth provider login page, User logs in and approves requested permissions.
 Based on `scope`, user sees what data is requested, Consent may be skipped if already approved before, Uses user session (cookies)
 
 **Step 3: Authorization Code Grant**
+
 After approval, user is redirected back to client (`redirect_uri`)
 ```
 GET /callback?code=a1b2c3d4e5f6g7h8&state=ae13d489bd00e3c24 HTTP/1.1
@@ -40,6 +43,7 @@ Host: client-app.com
 `code` → Temporary authorization code, `state` → Must match original (CSRF protection)
 
 **Step 4: Access Token Request**
+
 Client server sends POST request to `/token` endpoint, This is server-to-server (back-channel) → more secure
 ```
 POST /token HTTP/1.1
@@ -50,6 +54,7 @@ client_id=12345&client_secret=SECRET&redirect_uri=https://client-app.com/callbac
 `client_secret` → Proves client identity, `code` → Received from previous step, 
 
 **Step 5: Access Token Grant**
+
 OAuth server validates request, Sends back an **access token**
 ```
 {
@@ -63,6 +68,7 @@ OAuth server validates request, Sends back an **access token**
 `access_token` → Used to access user data, `token_type` → Usually Bearer, `expires_in` → Token lifetime, `scope` → Approved permissions
 
 **Step 6: API Call**
+
 Client uses access token to request user data.
 First, Sends request to `/userinfo` or API endpoint. Includes token in header:
 
@@ -71,6 +77,7 @@ Authorization: Bearer <access_token>
 ```
 
 **Step 7: Resource Grant**
+
 Resource server verifies token, If valid → returns user data
 ```
 {
@@ -79,5 +86,6 @@ Resource server verifies token, If valid → returns user data
     …
 }
 ```
+
 
 > Authorization → Login → Code → Token → API → Data → Login
