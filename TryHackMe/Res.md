@@ -61,7 +61,7 @@ Running:
 INFO
 ```
 
-Revealed:
+Found:
 
 ```
 executable:/home/vianka/redis-stable/src/redis-server
@@ -75,7 +75,7 @@ vianka
 
 ---
 
-# Exploitation — Redis Webshell
+# Exploitation
 
 Redis allows:
 
