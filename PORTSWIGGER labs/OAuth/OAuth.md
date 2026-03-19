@@ -89,3 +89,51 @@ Resource server verifies token, If valid → returns user data
 
 
 > Authorization → Login → Code → Token → API → Data → Login
+
+
+
+## Implicit grant type
+After user login & consent, the client immediately receives the access token (no authorization code step) via browser redirect. Since no back-channel & no client_secret → all happens in front-channel so it is less secure (token exposed in browser)
+Used in SPA / mobile apps where secret storage isn’t possible
+
+
+**Step 1: Authorization Request**
+
+Client sends request with `response_type=token`, Same as auth code flow but asks for **token directly**
+
+
+**Step 2: User Login & Consent**
+
+User logs in and approves permissions, Same process as authorization code flow
+
+
+**Step 3: Access Token Grant**
+
+OAuth server redirects to `redirect_uri`, Sends **access token in URL fragment (`#`)**, not query
+
+```
+GET /callback#access_token=z0y9x8w7v6u5&token_type=Bearer&expires_in=5000&scope=openid%20profile&state=ae13d489bd00e3c24 HTTP/1.1
+```
+Token is handled by browser (JS extracts it)
+
+
+**Step 4: API Call**
+
+Client uses extracted token, Sends request with:
+
+```
+Authorization: Bearer <access_token>
+```
+
+
+**Step 5: Resource Grant**
+
+Server verifies token, Returns user data (email, username, etc.)
+
+
+
+> Login → Token (direct) → API → Data → Login session
+
+
+
+
