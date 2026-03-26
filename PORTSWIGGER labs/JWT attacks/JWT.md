@@ -48,3 +48,13 @@ JWT libraries usually provide two functions: one to verify a token and one to ju
 - **Lab: JWT authentication bypass via unverified signature** - [SOLUTION](https://github.com/OxL3on/Cybersecurity-playground/blob/main/PORTSWIGGER%20labs/JWT%20attacks/JWT_Labs.md#lab-jwt-authentication-bypass-via-unverified-signature)
 
 <br>
+
+### Accepting tokens with no signature
+
+JWT has a field called `alg` that tells the server how the token is signed. The problem is this value comes from the user, so it can be changed. An attacker can set `alg` to `none`, which means no signature is used. If the server accepts this, it stops checking the signature completely. This allows the attacker to change the token however they want, like becoming an admin, and the server will still trust it. In simple terms, the server is trusting what the attacker says about security, which leads to a full authentication bypass.
+
+<br>
+
+- **Lab: JWT authentication bypass via flawed signature verification** - [SOLUTION](https://github.com/OxL3on/Cybersecurity-playground/blob/main/PORTSWIGGER%20labs/JWT%20attacks/JWT_Labs.md#lab-jwt-authentication-bypass-via-unverified-signature)
+
+<br>
