@@ -36,3 +36,15 @@ authenticity (issued by trusted server)
 | **Used in real apps**                 | As a concept                      |  Very common (login tokens)          |  Rare                                   |
 | **What people usually mean by “JWT”** | General term                      |  Actually JWS                       | Rarely JWE                                |
 
+
+JWTs are self-contained tokens, meaning the server does not store their original data and fully relies on the signature to check if they are valid. If the server does not properly verify the signature, it has no way to detect changes in the token. This allows an attacker to modify the payload, such as changing the username to impersonate another user or setting isAdmin to true to gain higher privileges. Since the server trusts the token, it may accept these changes as legitimate.
+
+### Accepting arbitrary signatures
+
+JWT libraries usually provide two functions: one to verify a token and one to just decode it. The verify() function checks the signature and makes sure the token is valid and not tampered with. The decode() function only reads the data inside the token without checking if it is real. If a developer mistakenly uses decode() instead of verify(), the application does not validate the signature at all. This means an attacker can create or modify a token however they want, and the server will still accept it as valid.
+
+<br>
+
+- **Lab: JWT authentication bypass via unverified signature**
+
+<br>
