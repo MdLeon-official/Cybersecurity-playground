@@ -45,7 +45,7 @@ JWT libraries usually provide two functions: one to verify a token and one to ju
 
 <br>
 
-- **Lab: JWT authentication bypass via unverified signature** - [SOLUTION](https://github.com/OxL3on/Cybersecurity-playground/blob/main/PORTSWIGGER%20labs/JWT%20attacks/JWT_Labs.md#lab-jwt-authentication-bypass-via-unverified-signature)
+- **Lab: JWT authentication bypass via unverified signature** - [SOLUTION](https://github.com/OxL3on/Cybersecurity-playground/blob/main/PORTSWIGGER%20labs/JWT%20attacks/JWT_Labs.md#lab-jwt-authentication-bypass-via-flawed-signature-verification)
 
 <br>
 
