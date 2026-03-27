@@ -67,5 +67,5 @@ In algorithms like HS256, the server uses a secret key to sign the JWT. This key
 hashcat -a 0 -m 16500 <jwt> <wordlist>
 ```
 
-- **Lab: JWT authentication bypass via weak signing key** - [SOLUTION]()
+- **Lab: JWT authentication bypass via weak signing key** - [SOLUTION](https://github.com/OxL3on/Cybersecurity-playground/blob/main/PORTSWIGGER%20labs/JWT%20attacks/JWT_Labs.md#lab-jwt-authentication-bypass-via-weak-signing-key)
 
