@@ -96,3 +96,21 @@ Now that I had the signing key, I went back to jwt.io. I pasted the original tok
 In Burp, I replaced the token in the intercepted `/admin` request with this newly signed token and forwarded it. I was then able to access the admin panel.
 
 Finally, I clicked the button to delete user `carlos`. The browser’s initial request used the old token, so I intercepted the DELETE request, swapped in my forged token again, and forwarded it. This time the deletion succeeded, and the lab was solved.
+
+
+
+# Lab: JWT authentication bypass via jwk header injection
+
+[LINK](https://portswigger.net/web-security/jwt/lab-jwt-authentication-bypass-via-jwk-header-injection)
+
+After logging in with `wiener:peter` and trying to access `/admin`, I saw the usual “admin only” message. Intercepting the request in Burp, I noticed the JWT was signed with an RSA algorithm. The twist in this lab is that the server is configured to accept a `jwk` (JSON Web Key) header parameter - meaning if we can embed our own public key and sign the token with the corresponding private key, the server will trust it.
+
+I used Burp’s JWT Editor extension (available from the BApp store) to make this easy. First, I opened the JWT Editor Keys tab in Burp’s main tab bar. I clicked “New RSA Key” and then “Generate” to create a fresh RSA key pair (no need to worry about key size, the extension handles it).
+
+Then I went back to the intercepted `GET /admin` request and switched to the JSON Web Token tab (also added by the extension). I edited the payload, changing the `sub` claim from `"wiener"` to `"administrator"`.
+
+At the bottom of that tab, I clicked “Attack” and chose “Embedded JWK”. A dialog popped up asking which key to use - I selected my newly generated RSA key. Burp automatically added a `jwk` header to the JWT containing my public key, signed the whole token with my private key, and updated the request.
+
+I forwarded the request and was immediately granted access to the admin panel.
+
+Finally, I clicked the button to delete user `carlos`. The browser’s request used the original token, so I intercepted that DELETE request, again switched to the JSON Web Token tab, repeated the “Embedded JWK” attack with my key, and forwarded it. This time the deletion succeeded, and the lab was solved.
