@@ -87,4 +87,4 @@ Generate their own RSA key pair. Modify the JWT payload. Sign the token with the
 
 The server will use the attacker‑supplied public key to verify the signature, accepting the forged token as valid. Tools like the JWT Editor extension automate embedding the key and adjusting the `kid` parameter.
 
-- **Lab: JWT authentication bypass via jwk header injection** - [SOLUTION]()
+- **Lab: JWT authentication bypass via jwk header injection** - [SOLUTION](https://github.com/OxL3on/Cybersecurity-playground/blob/main/PORTSWIGGER%20labs/JWT%20attacks/JWT_Labs.md#lab-jwt-authentication-bypass-via-jwk-header-injection)
