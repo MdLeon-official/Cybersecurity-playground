@@ -69,3 +69,22 @@ hashcat -a 0 -m 16500 <jwt> <wordlist>
 
 - **Lab: JWT authentication bypass via weak signing key** - [SOLUTION](https://github.com/OxL3on/Cybersecurity-playground/blob/main/PORTSWIGGER%20labs/JWT%20attacks/JWT_Labs.md#lab-jwt-authentication-bypass-via-weak-signing-key)
 
+
+# JWT header parameter injections
+
+The JWT header (JOSE header) can contain parameters that specify how the token’s signature should be verified. The three most relevant for attacks are:
+
+- **jwk (JSON Web Key)** - embeds the public key directly inside the header.  
+- **jku (JSON Web Key Set URL)** - points to a URL where the server retrieves the key set.  
+- **kid (Key ID)** - references a specific key by an identifier.
+
+An attacker can modify these parameters to substitute their own key. By signing the token with a key they control and instructing the server to use that same key (via jwk, jku, or kid), they can make the server accept a forged token. Successful exploitation relies on the server trusting these user‑supplied header fields without validation.
+
+
+### Injecting self-signed JWTs via the jwk parameter
+The `jwk` header parameter allows a public key to be embedded directly inside the JWT. If a server is misconfigured to accept any key presented in `jwk`, an attacker can:
+Generate their own RSA key pair. Modify the JWT payload. Sign the token with their private key. Insert the matching public key (as a JWK) into the header.
+
+The server will use the attacker‑supplied public key to verify the signature, accepting the forged token as valid. Tools like the JWT Editor extension automate embedding the key and adjusting the `kid` parameter.
+
+- **Lab: JWT authentication bypass via jwk header injection** - [SOLUTION]()
