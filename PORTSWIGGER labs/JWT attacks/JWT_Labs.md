@@ -70,3 +70,29 @@ You should now have access to the admin panel.
 In the admin panel, you’ll see a button to delete user `carlos`. If you click it directly, the browser will use the old token, so you’ll get the same “admin only” message. Instead, intercept the DELETE request in Burp, replace the token there with your forged `none` token again, and forward it.
 
 The request goes through, Carlos is deleted, and the lab is solved.
+
+
+# Lab: JWT authentication bypass via weak signing key
+
+[LINK](https://portswigger.net/web-security/jwt/lab-jwt-authentication-bypass-via-weak-signing-key)
+
+First, log in with the credentials `wiener:peter`. Then try to access `/admin` – you’ll see the usual message:  
+> Admin interface only available if logged in as an administrator.
+
+Now intercept the request to `/admin` in Burp Suite. Look at the JWT token - it’s a bit different from the previous lab. If you decode it at [jwt.io](https://jwt.io/), you’ll see the header uses `"alg": "HS256"` (symmetric signing) and the payload contains `"sub": "wiener"`.
+
+Because the server uses a weak symmetric key, we can brute‑force it to then forge a valid token.  
+
+I used `hashcat` with the mode for JWT (mode 16500) and a wordlist of common secrets. The command looked like this:
+
+```bash
+hashcat -a 0 -m 16500 "eyJraWQiOiI0ZjkyNDRjMy05NDMzLTQ4YTItYTI0Yi0zM2E3MGZlM2IzOGMiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJwb3J0c3dpZ2dlciIsImV4cCI6MTc3NDYxMTI3NSwic3ViIjoid2llbmVyIn0.n7yxGfEWiM4m2F7Zv1N5KeMLkSqs3xl4Tk2LvBpE7tY" /usr/share/wordlists/jwt.secrets.list
+```
+
+Hashcat quickly cracked it, revealing the secret: `secret1`.
+
+Now that I had the signing key, I went back to jwt.io. I pasted the original token, changed the `sub` field from `"wiener"` to `"administrator"`, and then – importantly – signed the new token using the secret `secret1` with the HS256 algorithm. This gave me a valid JWT claiming I was an administrator.
+
+In Burp, I replaced the token in the intercepted `/admin` request with this newly signed token and forwarded it. I was then able to access the admin panel.
+
+Finally, I clicked the button to delete user `carlos`. The browser’s initial request used the old token, so I intercepted the DELETE request, swapped in my forged token again, and forwarded it. This time the deletion succeeded, and the lab was solved.
