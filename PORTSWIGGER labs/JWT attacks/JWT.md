@@ -1,12 +1,12 @@
-## What Is JSON
+# What Is JSON
 
 **JavaScript Object Notation(JSON)** , text based format for transmitting data across the web application. It stores information in a easy to access manner for both the developer and the computer. Can work with many programming language and preferred syntax for API.
 
-## What is JWT
+# What is JWT
 
 **JSON Web Token** is a compact, URL-safe means of representing claims to be transferred between two parties
 
-## JWT Formats
+# JWT Formats
 
 A JWT consists of 3 parts separated by dots:
 ```
@@ -21,7 +21,7 @@ Header.Payload.Signature
 authenticity (issued by trusted server)
 
 
-## JWT vs JWS vs JWE
+# JWT vs JWS vs JWE
 
 | Feature                               | JWT                               | JWS                                   | JWE                                       |
 | ------------------------------------- | --------------------------------- | ------------------------------------- | ----------------------------------------- |
@@ -39,7 +39,7 @@ authenticity (issued by trusted server)
 
 JWTs are self-contained tokens, meaning the server does not store their original data and fully relies on the signature to check if they are valid. If the server does not properly verify the signature, it has no way to detect changes in the token. This allows an attacker to modify the payload, such as changing the username to impersonate another user or setting isAdmin to true to gain higher privileges. Since the server trusts the token, it may accept these changes as legitimate.
 
-### Accepting arbitrary signatures
+## Accepting arbitrary signatures
 
 JWT libraries usually provide two functions: one to verify a token and one to just decode it. The verify() function checks the signature and makes sure the token is valid and not tampered with. The decode() function only reads the data inside the token without checking if it is real. If a developer mistakenly uses decode() instead of verify(), the application does not validate the signature at all. This means an attacker can create or modify a token however they want, and the server will still accept it as valid.
 
@@ -49,7 +49,7 @@ JWT libraries usually provide two functions: one to verify a token and one to ju
 
 <br>
 
-### Accepting tokens with no signature
+## Accepting tokens with no signature
 
 JWT has a field called `alg` that tells the server how the token is signed. The problem is this value comes from the user, so it can be changed. An attacker can set `alg` to `none`, which means no signature is used. If the server accepts this, it stops checking the signature completely. This allows the attacker to change the token however they want, like becoming an admin, and the server will still trust it. In simple terms, the server is trusting what the attacker says about security, which leads to a full authentication bypass.
 
@@ -58,3 +58,14 @@ JWT has a field called `alg` that tells the server how the token is signed. The 
 - **Lab: JWT authentication bypass via flawed signature verification** - [SOLUTION](https://github.com/OxL3on/Cybersecurity-playground/blob/main/PORTSWIGGER%20labs/JWT%20attacks/JWT_Labs.md#lab-jwt-authentication-bypass-via-flawed-signature-verification)
 
 <br>
+
+## Brute-forcing secret keys
+In algorithms like HS256, the server uses a secret key to sign the JWT. This key works like a password. If the secret is weak, common, or not changed from a default value, an attacker can guess it using brute force. Once the attacker finds the correct secret, they can create their own JWT with any data they want, such as making themselves an admin, and sign it with a valid signature.
+
+### Brute-forcing secret keys using hashcat
+```
+hashcat -a 0 -m 16500 <jwt> <wordlist>
+```
+
+- **Lab: JWT authentication bypass via weak signing key** - [SOLUTION]()
+
