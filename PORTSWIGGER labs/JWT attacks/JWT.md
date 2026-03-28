@@ -108,3 +108,15 @@ If the server does not restrict which URLs it trusts, an attacker can host a mal
 - **Lab: JWT authentication bypass via jku header injection** - [SOLUTION](https://github.com/OxL3on/Cybersecurity-playground/blob/main/PORTSWIGGER%20labs/JWT%20attacks/JWT_Labs.md#lab-jwt-authentication-bypass-via-jku-header-injection)
 
 <br>
+
+### Injecting self-signed JWTs via the kid parameter
+
+The `kid` (Key ID) header tells the server which key to use when verifying a JWT signature. Servers often store multiple keys, and the `kid` value helps select the correct one. If the server directly trusts this value from the token, an attacker can manipulate it.
+- Path traversal : By supplying a value like ../../path/to/file, the server may read an arbitrary file from its filesystem to use as the symmetric key. If the server supports symmetric algorithms (e.g., HS256), the attacker can sign the token with the contents of that file. A common trick is using /dev/null (empty file) to sign with an empty secret
+- SQL injection – When the server queries a database to retrieve the key based on kid, injecting SQL can alter the query to return a key chosen by the attacker or bypass the lookup entirely.
+
+<br>
+
+- **Lab: JWT authentication bypass via kid header path traversal** - [SOLUTION]()
+
+<br>
