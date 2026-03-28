@@ -105,6 +105,6 @@ If the server does not restrict which URLs it trusts, an attacker can host a mal
 
 <br>
 
-- **Lab: JWT authentication bypass via jku header injection** - [SOLUTION]()
+- **Lab: JWT authentication bypass via jku header injection** - [SOLUTION](https://github.com/OxL3on/Cybersecurity-playground/blob/main/PORTSWIGGER%20labs/JWT%20attacks/JWT_Labs.md#lab-jwt-authentication-bypass-via-jku-header-injection)
 
 <br>
