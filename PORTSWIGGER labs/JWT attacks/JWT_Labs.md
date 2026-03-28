@@ -169,7 +169,7 @@ After logging in with `wiener:peter` and trying to access `/admin`, I saw the fa
 
 ```json
 {
-  "kid": "something",
+  "kid": "36452a4a-d9eb-4918-9e4d-7cc274861a0c",
   "alg": "HS256"
 }
 ```
