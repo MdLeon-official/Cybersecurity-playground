@@ -67,7 +67,11 @@ In algorithms like HS256, the server uses a secret key to sign the JWT. This key
 hashcat -a 0 -m 16500 <jwt> <wordlist>
 ```
 
+<br>
+
 - **Lab: JWT authentication bypass via weak signing key** - [SOLUTION](https://github.com/OxL3on/Cybersecurity-playground/blob/main/PORTSWIGGER%20labs/JWT%20attacks/JWT_Labs.md#lab-jwt-authentication-bypass-via-weak-signing-key)
+
+<br>
 
 
 # JWT header parameter injections
@@ -87,4 +91,20 @@ Generate their own RSA key pair. Modify the JWT payload. Sign the token with the
 
 The server will use the attacker‑supplied public key to verify the signature, accepting the forged token as valid. Tools like the JWT Editor extension automate embedding the key and adjusting the `kid` parameter.
 
+<br>
+
 - **Lab: JWT authentication bypass via jwk header injection** - [SOLUTION](https://github.com/OxL3on/Cybersecurity-playground/blob/main/PORTSWIGGER%20labs/JWT%20attacks/JWT_Labs.md#lab-jwt-authentication-bypass-via-jwk-header-injection)
+
+<br>
+
+
+### Injecting self-signed JWTs via the jku parameter
+
+The `jku` (JWK Set URL) header parameter tells the server where to fetch a JSON Web Key Set containing the public key for signature verification.  
+If the server does not restrict which URLs it trusts, an attacker can host a malicious JWK Set on their own server, embed their own public key, and sign the JWT with the corresponding private key. The server will retrieve the attacker‑controlled key set and accept the forged token. Even when only trusted domains are allowed, URL parsing inconsistencies (like those exploited in SSRF) can sometimes bypass the filter.
+
+<br>
+
+- **Lab: JWT authentication bypass via jku header injection** - [SOLUTION]()
+
+<br>
