@@ -147,7 +147,7 @@ Now I went back to Burp Repeater and the intercepted `GET /admin` request. I swi
 - In the header, I replaced the existing `kid` (key ID) with the `kid` from my JWK Set (a23c8c7b-6b2c-4b7a-8bc4-27265fd398cf - the one I pasted on the exploit server).
 - I added a new `jku` header parameter, setting its value to the URL of my JWK Set (the exploit server URL).
 - In the payload, I changed the `sub` claim from `"wiener"` to `"administrator"`.
-```
+```json
 {
     "kid": "a23c8c7b-6b2c-4b7a-8bc4-27265fd398cf",
     "jku": "https://exploit-0ad4008d0446fb9b801e89bc01ed004c.exploit-server.net/.well-known/jwks.json",
@@ -158,3 +158,45 @@ Now I went back to Burp Repeater and the intercepted `GET /admin` request. I swi
 Finally, I clicked **Sign** at the bottom, selected my RSA key, and made sure **Don't modify header** was selected (so the `jku` and `kid` I manually set stayed intact). The extension signed the token with my private key.
 
 I sent the request and - success! I was granted access to the admin panel. In the response, I found the link to delete user `carlos`: `/admin/delete?username=carlos`. I sent a request to that endpoint (intercepting again to ensure the same forged token was used) and the lab was solved.
+
+
+
+# Lab: JWT authentication bypass via kid header path traversal
+
+[LINK](https://portswigger.net/web-security/jwt/lab-jwt-authentication-bypass-via-kid-header-path-traversal)
+
+After logging in with `wiener:peter` and trying to access `/admin`, I saw the familiar “admin only” message. Intercepting the request in Burp, I examined the JWT. The header looked like this:
+
+```json
+{
+  "kid": "something",
+  "alg": "HS256"
+}
+```
+
+In this lab, the server uses the `kid` (key ID) parameter to construct a file path to retrieve the symmetric signing key. Because the server doesn’t properly sanitize the `kid`, I could use directory traversal to point it to a predictable file on the server - in this case, `/dev/null`, which is an empty file.
+
+I used Burp’s JWT Editor extension to modify the token. I changed the header to:
+
+```json
+{
+  "kid": "../../../dev/null",
+  "alg": "HS256"
+}
+```
+
+Since `HS256` is a symmetric algorithm, the signing key would be whatever the server reads from the file. `/dev/null` is empty, so effectively the key becomes an empty string.
+
+In the payload, I changed the `sub` claim from `"wiener"` to `"administrator"`:
+
+```json
+{
+  "iss": "portswigger",
+  "exp": 1774700851,
+  "sub": "administrator"
+}
+```
+
+Now I needed to sign the token with an empty key. The JWT Editor extension has a convenient option for this: after modifying the token, I clicked **Attack** and selected **Sign with empty key**. The extension signed the token using an empty string as the secret, matching what the server would derive from `/dev/null`.
+
+I sent the request and was immediately granted access to the admin panel. In the response, I found the link to delete user `carlos` at `/admin/delete?username=carlos`. I intercepted that DELETE request, replaced the token with my forged one (again using the empty key signature), and forwarded it. The user was deleted, and the lab was solved.
