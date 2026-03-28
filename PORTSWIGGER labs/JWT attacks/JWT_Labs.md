@@ -114,3 +114,47 @@ At the bottom of that tab, I clicked “Attack” and chose “Embedded JWK”. 
 I forwarded the request and was immediately granted access to the admin panel.
 
 Finally, I clicked the button to delete user `carlos`. The browser’s request used the original token, so I intercepted that DELETE request, again switched to the JSON Web Token tab, repeated the “Embedded JWK” attack with my key, and forwarded it. This time the deletion succeeded, and the lab was solved.
+
+
+
+# Lab: JWT authentication bypass via jku header injection
+
+[LINK](https://portswigger.net/web-security/jwt/lab-jwt-authentication-bypass-via-jku-header-injection)
+
+After logging in as `wiener:peter`, I tried to access `/admin` and got the usual “admin only” message. Intercepting the request in Burp, I saw the JWT was signed with RSA. In this lab, the server trusts the `jku` (JSON Key URL) header, which points to a location containing the public key used to verify the signature. If I can host my own JWK Set and make the token point to it, I can sign the token with my matching private key and impersonate an administrator.
+
+I used Burp’s JWT Editor extension again. First, I went to the **JWT Editor Keys** tab and generated a new RSA key pair (simply click “New RSA Key” and then “Generate”). This gave me a private key I could use to sign tokens, and a corresponding public key that I’d need to serve.
+
+Next, I opened the exploit server that comes with the lab. In the **Body** section, I created a minimal JWK Set - an empty JSON object with a `keys` array. Then I went back to the JWT Editor Keys tab, right‑clicked my generated RSA key, and selected **Copy Public Key as JWK**. I pasted that JSON object into the `keys` array on the exploit server, so the final JWK Set looked something like:
+
+```json
+{
+  "keys": [
+    {
+      "kty": "RSA",
+      "e": "AQAB",
+      "kid": "a23c8c7b-6b2c-4b7a-8bc4-27265fd398cf",
+      "n": "yyEg9XAxJBTb1Fmikl66ZCbXUMbqPd0taLVr0So5EEkrJPWc47ZMQVRAX-x_2O3EbUlGFnX_ka-Ul3aGPXSS1IrbUaJTERkP9S2avr-hNbwRF41MzotXx8R704WThjlINugp62QLrY2xwnd2Jg0TjqWCKiN7KEKGFDInbr2PmOy5rn2bRBTHxjN9kel6GqzG3_7uQ__1akIyMnZN1PHgMJpxjly5aQs4TbJIHI5k6Bk3C4zbgtCOWHz9AsqYAnTM4PrFrGolt5FzP_-6XaKv9g4EXyieOTuvMmzU63X34x-6_ozde3GtK8GTvJt9x9mBuIQaP9EQA7S_Lx0SWw2Ptw"
+    }
+  ]
+}
+```
+
+I stored the exploit, noting the URL (e.g., `(https://exploit-0ad4008d0446************ed004c.exploit-server.net/.well-known/jwks.json)`).
+
+Now I went back to Burp Repeater and the intercepted `GET /admin` request. I switched to the JSON Web Token tab and modified the JWT:
+
+- In the header, I replaced the existing `kid` (key ID) with the `kid` from my JWK Set (a23c8c7b-6b2c-4b7a-8bc4-27265fd398cf - the one I pasted on the exploit server).
+- I added a new `jku` header parameter, setting its value to the URL of my JWK Set (the exploit server URL).
+- In the payload, I changed the `sub` claim from `"wiener"` to `"administrator"`.
+```
+{
+    "kid": "a23c8c7b-6b2c-4b7a-8bc4-27265fd398cf",
+    "jku": "https://exploit-0ad4008d0446fb9b801e89bc01ed004c.exploit-server.net/.well-known/jwks.json",
+    "alg": "RS256"
+}
+```
+
+Finally, I clicked **Sign** at the bottom, selected my RSA key, and made sure **Don't modify header** was selected (so the `jku` and `kid` I manually set stayed intact). The extension signed the token with my private key.
+
+I sent the request and - success! I was granted access to the admin panel. In the response, I found the link to delete user `carlos`: `/admin/delete?username=carlos`. I sent a request to that endpoint (intercepting again to ensure the same forged token was used) and the lab was solved.
