@@ -117,6 +117,6 @@ The `kid` (Key ID) header tells the server which key to use when verifying a JWT
 
 <br>
 
-- **Lab: JWT authentication bypass via kid header path traversal** - [SOLUTION]()
+- **Lab: JWT authentication bypass via kid header path traversal** - [SOLUTION](https://github.com/OxL3on/Cybersecurity-playground/blob/main/PORTSWIGGER%20labs/JWT%20attacks/JWT_Labs.md#lab-jwt-authentication-bypass-via-kid-header-path-traversal)
 
 <br>
