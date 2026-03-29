@@ -176,12 +176,6 @@ Use HS256 → use the **public key as the secret key** → generate new signatur
 
 ## Deriving public keys from existing tokens
 
-Here’s a **short, easy, pro-style note** 👇
-
----
-
-# 🔓 Deriving Public Key from JWTs
-
 If the public key is not exposed, it can sometimes be **derived from two JWTs** signed by the same server.
 
 Tools like `sig2n` take two tokens → analyze their signatures → calculate possible values of the RSA public key (`n`) → generate candidate public keys → create forged JWTs using those keys.
@@ -192,4 +186,3 @@ You test each forged token → only one works → that key matches the server’
 
 - **Lab: JWT authentication bypass via algorithm confusion with no exposed key** - [SOLUTION](https://github.com/OxL3on/Cybersecurity-playground/blob/main/PORTSWIGGER%20labs/JWT%20attacks/JWT_Labs.md#lab-jwt-authentication-bypass-via-algorithm-confusion-with-no-exposed-key)
 
-<br>
