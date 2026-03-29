@@ -120,3 +120,59 @@ The `kid` (Key ID) header tells the server which key to use when verifying a JWT
 - **Lab: JWT authentication bypass via kid header path traversal** - [SOLUTION](https://github.com/OxL3on/Cybersecurity-playground/blob/main/PORTSWIGGER%20labs/JWT%20attacks/JWT_Labs.md#lab-jwt-authentication-bypass-via-kid-header-path-traversal)
 
 <br>
+
+
+### Other interesting JWT header parameters
+
+The `cty` parameter controls how the payload is interpreted. If an attacker can bypass signature checks, they can change it to formats like XML or serialized data, potentially triggering XXE or deserialization vulnerabilities.
+
+The `x5c` parameter carries certificates used for signature verification. If the server trusts this value, an attacker can inject their own certificate and sign tokens with a matching private key, making malicious tokens appear valid.
+
+
+
+# JWT algorithm confusion
+
+Algorithm confusion attacks happen when the server trusts the alg value from the JWT header and uses the wrong method to verify the signature.
+
+## Symmetric vs asymmetric algorithms
+
+JWTs can use two types of signing algorithms: symmetric and asymmetric.
+
+In symmetric algorithms like HS256, the same secret key is used to both sign and verify the token. This key must be kept private, because anyone who knows it can create valid JWTs.
+
+In asymmetric algorithms like RS256, two keys are used. The server signs the token with a private key, and anyone can verify it using the public key. The private key must stay secret, while the public key can be shared.
+
+## How do algorithm confusion vulnerabilities arise?
+
+Algorithm confusion happens when the server uses a **generic verification function** that relies on the `alg` value from the JWT header to decide how to verify the signature. If the developer assumes the token will always use an asymmetric algorithm like RS256, they may always pass the server’s public key for verification. However, an attacker can change the algorithm to HS256. In this case, the library treats the public key as a **secret key** and uses it for HMAC verification. Since the attacker also uses that same public key to sign the token, the signature becomes valid. In simple terms, the server gets tricked into using the wrong method, turning a public key into a secret and allowing attackers to forge valid JWTs.
+
+## Performing an algorithm confusion attack
+
+### Step 1: Get Public Key
+
+Find `/jwks.json` or similar endpoint → extract JWK → copy `n` and `e` values → reconstruct server’s public key → this is normally public and used for verification
+
+
+### Step 2: Convert Key
+
+Paste JWK into Burp JWT Editor → generate RSA key → switch to PEM format → copy PEM key exactly (keep formatting/newlines) → go to Decoder → base64 encode the PEM → go back to JWT Editor → create new symmetric key → replace its `k` value with base64-encoded PEM → save key → now this key is ready to be used as HS256 secret
+
+
+### Step 3: Modify JWT
+
+Decode token → change payload (e.g., `sub: administrator`) → change header `alg` from `RS256` to `HS256` → this forces server to switch verification method
+
+
+### Step 4: Sign Token
+
+Use HS256 → use the **public key as the secret key** → generate new signature → token now looks valid under HS256
+
+<br>
+
+- **Lab: JWT authentication bypass via algorithm confusion** - [SOLUTION]()
+
+<br>
+
+
+## Deriving public keys from existing tokens
+
