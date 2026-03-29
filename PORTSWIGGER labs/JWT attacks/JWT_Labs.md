@@ -200,3 +200,57 @@ In the payload, I changed the `sub` claim from `"wiener"` to `"administrator"`:
 Now I needed to sign the token with an empty key. The JWT Editor extension has a convenient option for this: after modifying the token, I clicked **Attack** and selected **Sign with empty key**. The extension signed the token using an empty string as the secret, matching what the server would derive from `/dev/null`.
 
 I sent the request and was immediately granted access to the admin panel. In the response, I found the link to delete user `carlos` at `/admin/delete?username=carlos`. I intercepted that DELETE request, replaced the token with my forged one (again using the empty key signature), and forwarded it. The user was deleted, and the lab was solved.
+
+
+# Lab: JWT authentication bypass via algorithm confusion
+
+After logging in as `wiener:peter` and trying to access `/admin`, I got the familiar “admin only” message. Intercepting the request in Burp, I saw the JWT was signed with `RS256` (asymmetric RSA). The twist here is that the server is vulnerable to **algorithm confusion** - it accepts `HS256` (symmetric HMAC) tokens but uses the same verification logic. If I can obtain the server’s public RSA key and then sign a token using `HS256` with that public key as the HMAC secret, the server will verify it successfully, effectively letting me forge any token .
+
+First I needed to find the public key. I checked a few common endpoints:
+
+- `/.well-known/jwks.json`
+- `/jwks.json`
+- `/auth/jwks`
+- `/api/jwks`
+- `/keys`
+- `/security/jwks`
+- `/public-keys`
+
+Bingo – `/jwks.json` returned a valid JWK Set:
+
+```json
+{"keys":[{"kty":"RSA","e":"AQAB","use":"sig","kid":"0524f4c1-e32a-47bb-9fc5-4f4cac5328ae","alg":"RS256","n":"o94tLBv6Avt97VYOoN8XmxVGW40xZlAabXmIvUxIU67G4fh8Aj1AuvUFvfwZAde7HAzGtIii3HNw7e9DuYdMhhBya5AZc0wjxXCjvWoujf54i_qqDnnvM7RQTOdLMgFA8qoVCIGwVCPM_GS7Oda6YpkIAJMo7xm69A2-WIQrTuabSKVl1NFVSPANfU9OcSb60D9zq0SHDC6NlKO_73Rlz5-TSPJOrt0ubiN4BtNc_Q2lJbbrF3K98xD37iQQARZ8BgvAXXp43lalwYuc1EDL5O_NfQM-LiXnfk4rpv28A8rBNPvtwu8NTZ5IMXTXLAfaNaQan6b6sEeefQHHO6cTbw"}]}
+```
+
+The lab description said the server stores its public key as an X.509 PEM file . So I needed to convert this JWK into a PEM, then into a Base64‑encoded string that I could use as a symmetric key.
+
+Using Burp’s JWT Editor extension:
+
+- I went to **JWT Editor Keys** → **New RSA Key** → selected the **PEM** format option.
+- I pasted the entire JWK object into the dialog. The extension automatically parsed it and displayed the RSA public key.
+- Then I right‑clicked the key and selected **Copy Public Key as PEM**.
+- I opened Burp’s **Decoder** tab, pasted the PEM, and encoded it as **Base64**. This is the value that will become the `k` parameter of our symmetric key.
+
+Now, here’s where the **real‑world nuance** comes in. In a perfect world, copying the PEM and Base64‑encoding it just works. But in reality, **tiny formatting differences can break the attack** . Things like:
+
+- Extra spaces or tabs inside the key
+- Newline characters at the beginning or end of the PEM
+- Different line break styles (LF vs CRLF)
+- Whether the Base64 padding (`=`) is included or stripped
+- Whether the tool you’re using expects raw bytes or a string
+
+To be safe, after pasting the PEM into the Decoder, I made sure there was a newline at the end of the file (some servers are picky about that). I also tested without the newline, and with different whitespace - in real engagements you might need to brute‑force these tiny variations.
+
+Once I had the Base64‑encoded PEM, I went back to **JWT Editor Keys** and clicked **New Symmetric Key**. I left the generated `k` value as a placeholder, then replaced it with my Base64 string. This created a symmetric key whose `k` value is *exactly* the server’s public RSA key in PEM format, Base64‑encoded.
+
+Now the actual attack:
+
+- In Repeater, I switched to the **JSON Web Token** tab.
+- I changed the `alg` header from `RS256` to `HS256`.
+- In the payload, I set `"sub": "administrator"`.
+- I clicked **Sign**, selected my newly created symmetric key, and made sure **Update/generatea "alg" parameter** was checked (so my `HS256` stayed).
+- The extension signed the token using HMAC‑SHA256 with the public key as the secret.
+
+I sent the request and - success! I was granted access to the admin panel. In the response, I found the delete endpoint for `carlos`: `/admin/delete?username=carlos`. I sent that request (replacing the token again with my forged one) and the lab was solved.
+
+# Lab: JWT authentication bypass via algorithm confusion with no exposed key
