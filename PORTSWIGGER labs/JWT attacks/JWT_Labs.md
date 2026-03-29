@@ -254,3 +254,54 @@ Now the actual attack:
 I sent the request and - success! I was granted access to the admin panel. In the response, I found the delete endpoint for `carlos`: `/admin/delete?username=carlos`. I sent that request (replacing the token again with my forged one) and the lab was solved.
 
 # Lab: JWT authentication bypass via algorithm confusion with no exposed key
+
+After logging in as `wiener:peter`, I tried to access `/admin` and got the usual “admin only” message. Intercepting the request in Burp, I saw the JWT was signed with `RS256`. The twist here is that the server is vulnerable to **algorithm confusion** - it accepts `HS256` tokens but uses the same verification logic for both. The problem? The server doesn’t expose its public key anywhere (no `/jwks.json`, no `/public‑key`, nothing). So I couldn’t just grab the key like in the previous lab.
+
+But there’s a mathematical trick: if you have **two different JWTs signed by the same RSA private key**, you can recover the public modulus `n` by computing the GCD of the two signature values (because both signatures are based on the same `n`). Once you have `n`, you can reconstruct the public key and then use it as an HMAC secret to forge a symmetric token.
+
+I first needed two valid JWTs from the server. I sent the `GET /admin` request twice (or just intercepted two different responses - any two JWTs issued for `wiener` work). I copied both tokens and used a tool called `rsa_sign2n` (by silentsignal) to extract the public key. I ran it in Docker:
+
+```bash
+git clone https://github.com/silentsignal/rsa_sign2n.git
+cd rsa_sign2n/standalone
+sudo docker compose build
+sudo docker run --rm -it sig2n
+```
+
+Inside the container, I ran the `jwt_forgery.py` script with the two tokens as arguments:
+
+```bash
+uv run jwt_forgery.py eyJraWQiOiJjZWFlZDNkNy05Y2Y5LTQ4ZWQtYjc1NC0wNTE2NTUzZWU5OWEiLCJhbGciOiJSUzI1NiJ9..(token1) eyJraWQiOiJjZWFlZDNkNy05Y2Y5LTQ4ZWQtYjc1NC0wNTE2NTUzZWU5OWEiLCJhbGciOiJSUzI1NiJ9..(token2)
+```
+
+The script computed the GCD of the two signature values and successfully recovered the public modulus `n`. It then generated two tampered JWTs (one using an X.509‑formatted public key, another using PKCS#1). The output included the recovered PEM public key:
+
+```
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsZWSy95LXmg+AMMBJt9X
+FvvmOVJYGq6tbwKZ0pboSPZGEqH6n6U1MZcXPiYgA9QgokiUDyDdP44vu/WrhN4Y
+ZVD78DoFCrNyOoDDJWpsnNKjlxRpsUld0DX3MFk3w7IIjWkBvFLpFqfcDpL0XkQn
+V9JLL7HLV9TqQdIV+9xGawYNf2mtdiIjMqf7OAldCy7oxYmGlCGp1RP+uDZIxjRq
+DfLLMm+9Zjmwhc1CvIh+he5W4vWLJzj3QB0MbbpUoszsXrT+RhJKuHy0MFAL5Jn4
+SFt4OshAsx006N68k3ZCkbB7b4t6t47GZMCGu45dLT7qm2KLsJsvR/4Ph/q8Prd4
+oQIDAQAB
+-----END PUBLIC KEY-----
+```
+
+The script also gave me two tampered JWTs (both with `alg` changed to `HS256`). I needed to test which one actually worked - because sometimes the exact encoding of the public key (line breaks, padding, etc.) matters when the server uses it as an HMAC secret. I tried the first tampered JWT in Burp by replacing the original token in the `GET /admin` request. It worked - I was still logged in as `wiener` (the payload hadn’t been changed yet). That meant the key was correct.
+
+Now I had the public key in PEM format. To forge an admin token, I followed the same process as in the previous algorithm confusion lab:
+
+- I opened Burp’s **Decoder** tab, pasted the entire PEM (including the `-----BEGIN PUBLIC KEY-----` and `-----END PUBLIC KEY-----` lines), and encoded it as **Base64**.
+- Then I went to the **JWT Editor Keys** tab, clicked **New Symmetric Key**, and replaced the generated `k` value with my Base64‑encoded PEM. This created a symmetric key whose secret is exactly the server’s public RSA key.
+- Back in the `GET /admin` request, I switched to the **JSON Web Token** tab, changed the `alg` header from `RS256` to `HS256`, and set the payload’s `sub` to `"administrator"`.
+- I clicked **Sign**, selected my newly created symmetric key, and made sure **Update/generatea "alg" parameter** was checked (so `HS256` stayed). The extension signed the token with HMAC‑SHA256 using the public key as the secret.
+
+I sent the request and was immediately granted access to the admin panel. In the response, I found the delete endpoint for `carlos`: `/admin/delete?username=carlos`. I sent that request (replacing the token again with my forged one) and the lab was solved.
+
+**NOTE TO ME**:
+
+- The two JWTs you collect **must be from the same key pair** (same `kid`). If the server rotates keys, grab two tokens that are close in time.
+- The GCD method works even if the signatures are different lengths - but sometimes you get multiple candidate `n` values. That’s why the script generated two tampered JWTs; you might need to try both to see which one the server accepts.
+- When converting the PEM to Base64, pay attention to **newlines and whitespace**. The server might expect the exact bytes of the PEM file including the trailing newline, or it might strip them. In my case, the PEM as copied directly worked, but in other labs I’ve had to add or remove a newline at the end.
+- The algorithm confusion vulnerability exists because the server uses the same verification function for both `RS256` and `HS256` – never trust the `alg` header blindly.
