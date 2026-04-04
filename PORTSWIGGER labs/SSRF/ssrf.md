@@ -33,7 +33,7 @@ How to Find SSRF:
 2. **Blind/Out-of-Band SSRF:**
    - If the application is vulnerable to blind SSRF, try to exploit using:
      - Attempt to trigger an HTTP request to an external system you control and monitor the system for network interactions from the vulnerable server.
-         - If defenses are put in place, follow previous techniques.
-         - Exploit inconsistencies in URL parsing
+     - If defenses are put in place, follow previous techniques.
+     - Exploit inconsistencies in URL parsing
       
 
