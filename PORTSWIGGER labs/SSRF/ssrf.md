@@ -1,12 +1,11 @@
-## What is SSRF
+### What is SSRF
 
 SSRF is a vulnerability class that occurs when an application is fetching a remote resource without first validating the user-spplied URL.
 There are 2 types:
 1. Regular/In Band
 2. Blind/Out-of-Band
 
-##
-How to Find SSRF:
+### How to Find SSRF:
  - Map The Application
      - Identify any request parameters that contains hostnames, IP addresses or full URLs
        
@@ -16,7 +15,7 @@ How to Find SSRF:
  - For each request parameter, modify its value to a server on the internet that you control and monitor the server for incoming requests
      - If no incoming connections are received, monitor the time taken for the application to        respond
 
-## How to exploit SSRF
+### How to exploit SSRF
 
 1. **Regular/In-Band SSRF:**
    - If the application allows for user-supplied arbitary URLs, try:
