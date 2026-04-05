@@ -113,3 +113,49 @@ In simple terms, the server is saying “I trust whoever asks,” and the browse
 
 <br>
 
+### Errors parsing Origin headers
+
+Some servers try to make CORS easy by using a whitelist of allowed origins. Instead of checking exact domain matches, they compare the Origin header using prefixes, suffixes, or regular expressions.
+
+So if the whitelist allows all domains ending with normal-website.com, an attacker can register hackersnormal-website.com and the server will say “okay, you end with normal-website.com, you are allowed.” This is called a whitelist parsing error. Alternatively, suppose an application grants access to all domains beginning with normal-website.com . An attacker might be able to gain access using the domain: normal-website.com.evil-user.net
+
+### Whitelisted null origin value
+
+Some servers whitelist the null origin to make local development easier. The Origin header can be null in situations like cross-origin redirects, file protocol requests, or sandboxed iframes.
+
+So if a request comes with Origin: null, the server replies saying “okay, null is allowed.” This is dangerous because an attacker can force the browser to send a null origin.
+In simple terms, the server is saying “I trust null,” and the attacker just needs to make the browser send null as the origin.
+
+<br>
+
+- Lab: CORS vulnerability with trusted null origin - [SOLUTION](https://github.com/OxL3on/Cybersecurity-playground/blob/main/PORTSWIGGER%20labs/CORS/CORS_Lab.md#lab-cors-vulnerability-with-trusted-null-origin)
+
+<br>
+
+
+### Exploiting XSS via CORS trust relationships
+
+Some servers set up CORS to trust specific origins, like a subdomain. They think that because the subdomain is part of their own domain, it is safe to allow. So if a request comes from https://subdomain.vulnerable-website.com, the server replies saying “okay, you are trusted” and reflects that origin.
+The problem becomes serious when the trusted subdomain itself has an XSS vulnerability. An attacker can inject malicious script into that subdomain. That script can then make a CORS request back to the main website, because the main website trusts the subdomain.
+
+### Breaking TLS with poorly configured CORS
+
+Some servers use HTTPS for their main site but whitelist a subdomain that uses plain HTTP. So when a request comes from http://trusted-subdomain.vulnerable-website.com, the server replies saying “okay, you are trusted” and allows credentials.
+
+The problem becomes serious when an attacker can intercept the victim’s traffic (for example, on an insecure Wi‑Fi network). The attacker waits for the victim to make any plain HTTP request, then injects a redirect to the HTTP subdomain. The victim follows the redirect.
+
+Now imagine the attacker intercepts that plain HTTP request to the subdomain and returns a fake response. That fake response contains a CORS request to the main HTTPS site. The victim’s browser sends the request with the Origin header set to the whitelisted HTTP subdomain. The main site sees the trusted origin and reflects it, allowing credentials. The attacker’s fake page can then read the sensitive data from the response (like API keys) and send it back to the attacker.
+
+So the attacker can steal sensitive data from an HTTPS site even if the site is otherwise secure, simply because it trusts an HTTP subdomain that the attacker can spoof.
+
+In simple terms, the server says “I trust my HTTP subdomain,” but the attacker can pretend to be that subdomain and trick the browser into handing over the victim’s secure data.
+
+<br>
+
+- Lab: CORS vulnerability with trusted insecure protocols - [SOLUTION](https://github.com/OxL3on/Cybersecurity-playground/blob/main/PORTSWIGGER%20labs/CORS/CORS_Lab.md#lab-cors-vulnerability-with-trusted-insecure-protocols)
+
+<br>
+
+### Intranets and CORS without credentials
+
+Most CORS attacks need the server to allow credentials so the browser sends cookies. Without that, the attacker can only read public data that anyone can see. That is usually not useful. But there is an exception: internal company websites that are not on the public internet. These intranet sites often have weak security and may not require any login. An attacker cannot reach these sites directly from outside. However, if an internal site has Access-Control-Allow-Origin: * (allowing any origin) and does not require credentials, an attacker can use a victim’s browser as a proxy. The victim works inside the company network. The attacker tricks the victim into visiting a malicious external site. That site makes a request to the internal website. The browser can reach it because the victim is inside the network. The internal site responds with data, and the malicious script reads that data and sends it back to the attacker. So the attacker can steal internal intranet information without needing any login credentials, simply by using the victim’s browser as a bridge from the outside to the inside. In simple terms, the server says “anyone inside the network can read this,” and the attacker uses an employee as a messenger to bring that data out.
