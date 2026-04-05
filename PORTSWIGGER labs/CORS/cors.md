@@ -6,11 +6,11 @@ CORS (Cross-Origin Resource Sharing) is a browser mechanism that allows controll
 
 The same-origin policy (SOP) is a browser security mechanism that restricts scripts on one origin from accessing data from another origin. An origin is defined by the scheme (protocol), domain, and port number. Only if all three match is access permitted; otherwise, it is blocked (with minor exceptions like Internet Explorer ignoring port).
 
-## Why is the same-origin policy necessary?
+### Why is the same-origin policy necessary?
 
 It prevents malicious websites from reading sensitive data from other origins (like your email or social media) even though cookies are automatically attached to cross-origin requests. CORS provides a controlled way to relax SOP when needed, but without SOP, any site could freely read any other site’s response.
 
-## How is the same-origin policy implemented?
+### How is the same-origin policy implemented?
 
 Same-origin policy is a browser security rule that controls what JavaScript can access. It allows a website to load resources from other domains like images, videos, or scripts, but it does not allow JavaScript to read the actual content of those resources. So loading is allowed, but reading is blocked.
 
@@ -33,7 +33,7 @@ The most important header here is Access-Control-Allow-Origin. This header is se
 
 So in simple terms, CORS is like the server saying “I trust this website, let it read my data,” and the browser enforces that rule.
 
-## Implementing simple cross-origin resource sharing 
+### Implementing simple cross-origin resource sharing 
 
 Simple CORS is just a conversation between the browser and the server to decide whether cross-origin data can be read.
 
@@ -50,7 +50,7 @@ The wildcard * means “allow any origin”, but it has limitations, especially 
 In short, simple CORS works by the browser asking “is this origin allowed?” and the server answering through headers.
 
 
-## Handling cross-origin resource requests with credentials 
+### Handling cross-origin resource requests with credentials 
 
 By default, when a website makes a request to another domain, the browser does not include sensitive things like cookies or Authorization headers. This is for safety, so other sites can’t automatically use your logged-in session.
 
@@ -65,7 +65,7 @@ If that header is missing or set to false, the browser will block access to the 
 So the idea is simple: sending cookies across domains is more sensitive, so the browser only allows it when both the client and server clearly agree.
 
 
-## Relaxation of CORS specifications with wildcards 
+### Relaxation of CORS specifications with wildcards 
 
 Using a wildcard in CORS just means the server is saying “any website can access this resource.” So if a response has Access-Control-Allow-Origin set to *, the browser will allow any origin to read that response.
 
@@ -76,7 +76,7 @@ Also, wildcards can’t be used partially. You can’t say something like https:
 Because of these restrictions, some servers try to be “smart” and dynamically set Access-Control-Allow-Origin based on whatever origin the user sends. That might seem convenient, but it’s risky. If not implemented carefully, it can allow malicious websites to trick the server into granting access, leading to serious security issues.
 
 
-## Pre-flight checks 
+### Pre-flight checks 
 
 Pre-flight checks are like a safety “permission check” the browser does before sending certain cross-origin requests.
 
@@ -92,4 +92,24 @@ The response can also include a time limit using Access-Control-Max-Age, so the 
 
 # Vulnerabilities arising from CORS configuration issues
 
+
+### Server-generated ACAO header from client-specified Origin header
+
+Some servers try to make CORS easy by just trusting whatever Origin the browser sends. Instead of checking if the origin is safe, the server simply takes that Origin value and puts it back in Access-Control-Allow-Origin.
+
+So if a request comes from malicious-website.com, the server replies saying “okay, malicious-website.com is allowed.” This is called reflecting the origin.
+
+The problem becomes serious when credentials are also allowed. If Access-Control-Allow-Credentials is set to true, the browser will send cookies along with the request. That means the request is treated as the logged-in user.
+
+Now imagine a victim is logged into vulnerable-website.com and visits a malicious site. That malicious site can send a request to vulnerable-website.com, and because the server blindly trusts the Origin and allows credentials, the browser will let the malicious site read the response.
+
+So the attacker can steal sensitive data like API keys, tokens, or private information directly from the victim’s account.
+
+In simple terms, the server is saying “I trust whoever asks,” and the browser follows that rule, which makes it a serious security flaw.
+
+<br>
+
+- Lab: CORS vulnerability with basic origin reflection - [SOLUTION](https://github.com/OxL3on/Cybersecurity-playground/blob/main/PORTSWIGGER%20labs/CORS/CORS_Lab.md#lab-cors-vulnerability-with-basic-origin-reflection)
+
+<br>
 
