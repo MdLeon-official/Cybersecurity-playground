@@ -80,3 +80,40 @@ I opened that response in the browser and navigated to “My account,” which c
 
 
 # Lab: High-level logic vulnerability
+
+First, log in using the provided credentials. After logging in, navigate to the store and locate the “Lightweight l33t leather jacket,” which costs $1337. Since your balance is only $100, you cannot purchase it directly.
+
+To exploit the vulnerability, choose a cheaper product and add it to your cart while intercepting the request using Burp Suite.
+
+The intercepted request looks like this:
+
+```id="k29xqa"
+POST /cart HTTP/2
+Host: 0a9b003204cb6878807a30e300be00aa.web-security-academy.net
+Cookie: session=UBW2tglBuwrs83Hfh9nqB3dTqt2QQejT
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 38
+Origin: https://0a9b003204cb6878807a30e300be00aa.web-security-academy.net
+Referer: https://0a9b003204cb6878807a30e300be00aa.web-security-academy.net/product?productId=7
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: same-origin
+Sec-Fetch-User: ?1
+Priority: u=0, i
+Te: trailers
+
+productId=7&redir=PRODUCT&quantity=1
+```
+
+Notice that the quantity parameter is user-controlled. Modify this value to a negative number, for example:  quantity = -5
+
+Forward the request. You will observe that the cart updates with a negative quantity and the total price decreases instead of increasing. Repeat this process by adjusting the quantity further into negative values until the total cart price drops below your available balance ($100).
+
+Once the total is low enough, add the expensive jacket to your cart and proceed to checkout. The manipulated cart total allows you to complete the purchase and solve the lab.
+
+# Lab: Low-level logic flaw
