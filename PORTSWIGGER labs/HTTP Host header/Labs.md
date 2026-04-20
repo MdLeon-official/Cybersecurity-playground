@@ -36,3 +36,18 @@ Remove cache buster -> Replay request repeatedly to poison cache -> Lab solved w
 # Lab: Host header authentication bypass
 
 Send GET / to Repeater -> Notice you can change Host header to anything and still access page -> Browse to `/robots.txt` -> Finds `/admin` panel -> Try `/admin` -> Access denied -> Error says local users only -> Send GET /admin to Repeater -> Change Host header to `localhost` -> Access granted (admin panel with delete option) -> Change request line to `GET /admin/delete?username=carlos` -> Send -> Lab solved
+
+
+# Lab: Routing-based SSRF
+
+Send GET / to Repeater -> Replace Host header with Collaborator payload -> Send -> Poll Collaborator -> HTTP request received (can make server issue requests to arbitrary server) -> Send GET / to Intruder -> Deselect "Update Host header to match target" -> Set Host header: `192.168.0.§0§` -> Payload: Numbers from 0 to 255 (step 1) -> Start attack -> Sort by Status column -> One request got 302 redirect to `/admin` -> Send to Repeater -> Change request line to `GET /admin` -> Send -> Access granted (admin panel) -> Find CSRF token from response -> Craft request: `GET /admin/delete?csrf=TOKEN&username=carlos` -> Send -> Lab solved
+
+
+# Lab: SSRF via flawed request parsing
+
+Send GET / to Repeater -> Use Collaborator: `GET https://ID.web-security-academy.net/` with `Host: BURP-COLLABORATOR-SUBDOMAIN` -> Send -> Poll Collaborator -> Confirms server issues requests to arbitrary host -> Send to Intruder -> Deselect "Update Host header to match target" -> Use Host header to scan `192.168.0.0/24` (range 0-255) -> Find admin interface IP -> Send to Repeater -> Append `/admin` to absolute URL: `GET https://ID.web-security-academy.net/admin` -> Access granted Change to `/admin/delete?csrf=TOKEN&username=carlos` -> Copy CSRF token from response -> Copy session cookie from Set-Cookie -> Add cookie to request -> Change request method to POST -> Send -> Lab solved
+
+
+# Lab: Host validation bypass via connection state attack
+
+Send GET / to Repeater -> Change path to `/admin` and Host to `192.168.0.1` -> Get redirected to homepage -> Duplicate tab -> Add both tabs to a group -> Tab 1: path `/`, Host back to `ID.h1-web-security-academy.net` -> Tab 2: path `/admin`, Host `192.168.0.1` -> Change send mode to **Send group in sequence (single connection)** -> Set `Connection: keep-alive` on both -> Send sequence -> Second request now accesses admin panel (bypass achieved) -> From admin response, note: action=`/admin/delete`, input name=`username`, and CSRF token -> Then edit /admin to `GET /admin/delete?csrf=TOKEN&username=carlos HTTP/1.1` -> Send group sequence again -> Lab solved
