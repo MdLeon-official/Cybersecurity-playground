@@ -1,5 +1,6 @@
 # Excessive Data Exposure
 
+`{{baseUrl}}/community/api/v2/community/posts/recent` -> this location gives more data that it was asked for (name, email ... etc)
 
 # JWT
 
