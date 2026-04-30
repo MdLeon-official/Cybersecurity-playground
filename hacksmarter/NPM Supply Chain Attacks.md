@@ -40,7 +40,7 @@ Malware often needs to **communicate with a Command & Control (C2) server**, so 
 These can indicate a RAT beaconing to its C2 server.
 
 
-### Step 2: Process Monitoring (Ultra-Short)
+### Step 2: Process Monitoring
 
 After finding a suspicious connection, check the **PID/program** in `netstat`. Then inspect it with:
 
@@ -61,7 +61,7 @@ Press: `c`
 You'll see something like: /usr/bin/python3 /tmp/ld.py
 
 
-### Step 3: Finding Persistence (Ultra-Short)
+### Step 3: Finding Persistence
 
 Attackers often use **cron jobs** to restart malware after reboot.
 
@@ -79,7 +79,7 @@ Then run: `crontab -l -u dev`
 You'll see something like: */5 * * * * /usr/bin/python3 /tmp/ld.py > /dev/null 2>&1
 
 
-### Step 4: File System Analysis (Ultra-Short)
+### Step 4: File System Analysis
 
 Go to the infected package:
 
@@ -100,3 +100,23 @@ cat setup.js
 * `package.json` → triggers **`postinstall`**
 * `setup.js` → creates **cron persistence** + runs `/tmp/ld.py`
 
+### Incident Response
+
+If a dev machine runs a malicious `postinstall` → **assume full compromise (secrets stolen)**.
+
+**1. Isolate Host**
+
+* Cut network (Wi-Fi/Ethernet) immediately
+* Don’t power off (preserve memory)
+
+**2. Rotate All Secrets**
+
+* Revoke & regenerate: **AWS/GCP/Azure keys, GitHub/GitLab tokens, NPM/PyPI tokens, VPN/passwords**
+
+**3. Check for Abuse**
+
+* Review logs (e.g., **CloudTrail, GitHub audit logs**) for suspicious activity
+
+**4. Rebuild System**
+
+* Do NOT clean → **wipe disk + fresh OS install**
